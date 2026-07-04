@@ -8,4 +8,4 @@ backend/.env
 
 # Logs
 *.log
-npm-debug.log*
+npm-debug.log* 
