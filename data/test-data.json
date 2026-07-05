@@ -1,0 +1,231 @@
+{
+  "description": "Fichier de données de test – Plateforme APIKëy",
+  "version": "1.0.0",
+  "generatedAt": "2026-07-04",
+
+  "utilisateurs": [
+    {
+      "id": 1,
+      "nom": "Diop",
+      "prenom": "Amadou",
+      "email": "amadou.diop@test.com",
+      "motDePasse": "Test1234!",
+      "role": "admin",
+      "estVerifie": true
+    },
+    {
+      "id": 2,
+      "nom": "Fall",
+      "prenom": "Fatou",
+      "email": "fatou.fall@test.com",
+      "motDePasse": "Test1234!",
+      "role": "developpeur",
+      "estVerifie": true
+    },
+    {
+      "id": 3,
+      "nom": "Ndiaye",
+      "prenom": "Moussa",
+      "email": "moussa.ndiaye@test.com",
+      "motDePasse": "Test1234!",
+      "role": "public",
+      "estVerifie": true
+    },
+    {
+      "id": 4,
+      "nom": "Sow",
+      "prenom": "Aissatou",
+      "email": "aissatou.sow@test.com",
+      "motDePasse": "Test1234!",
+      "role": "developpeur",
+      "estVerifie": false
+    }
+  ],
+
+  "apis": [
+    {
+      "id": 1,
+      "nom": "Text-to-Speech (TTS)",
+      "url": "https://api.apikey-platform.com/tts",
+      "statut": "disponible",
+      "prixParAppel": 0.05
+    },
+    {
+      "id": 2,
+      "nom": "Automatic Speech Recognition (ASR)",
+      "url": "https://api.apikey-platform.com/asr",
+      "statut": "disponible",
+      "prixParAppel": 0.08
+    },
+    {
+      "id": 3,
+      "nom": "Traduction Automatique",
+      "url": "https://api.apikey-platform.com/traduction",
+      "statut": "disponible",
+      "prixParAppel": 0.03
+    }
+  ],
+
+  "cles_api": [
+    {
+      "id": 1,
+      "utilisateur_id": 2,
+      "valeurCle": "sk_test_fatou_tts_aabbcc112233",
+      "quotaMax": 200,
+      "nombreAppelsUtilises": 45,
+      "statut": "active",
+      "api_id": 1
+    },
+    {
+      "id": 2,
+      "utilisateur_id": 2,
+      "valeurCle": "sk_test_fatou_asr_ddeeff445566",
+      "quotaMax": 100,
+      "nombreAppelsUtilises": 100,
+      "statut": "revoquee",
+      "api_id": 2
+    },
+    {
+      "id": 3,
+      "utilisateur_id": 3,
+      "valeurCle": "sk_test_moussa_trad_778899aabbcc",
+      "quotaMax": 150,
+      "nombreAppelsUtilises": 12,
+      "statut": "active",
+      "api_id": 3
+    },
+    {
+      "id": 4,
+      "utilisateur_id": 4,
+      "valeurCle": "sk_test_aissatou_tts_xxyyzz998877",
+      "quotaMax": 200,
+      "nombreAppelsUtilises": 0,
+      "statut": "active",
+      "api_id": 1
+    }
+  ],
+
+  "log_consommation": [
+    {
+      "id": 1,
+      "cle_id": 1,
+      "api_id": 1,
+      "dateAppel": "2026-07-01T08:14:22Z",
+      "tempsExecution": 0.342,
+      "statut": "reussi"
+    },
+    {
+      "id": 2,
+      "cle_id": 1,
+      "api_id": 1,
+      "dateAppel": "2026-07-01T10:30:05Z",
+      "tempsExecution": 0.289,
+      "statut": "reussi"
+    },
+    {
+      "id": 3,
+      "cle_id": 1,
+      "api_id": 1,
+      "dateAppel": "2026-07-02T09:05:11Z",
+      "tempsExecution": 1.204,
+      "statut": "echoue"
+    },
+    {
+      "id": 4,
+      "cle_id": 2,
+      "api_id": 2,
+      "dateAppel": "2026-07-02T14:22:33Z",
+      "tempsExecution": 0.511,
+      "statut": "reussi"
+    },
+    {
+      "id": 5,
+      "cle_id": 3,
+      "api_id": 3,
+      "dateAppel": "2026-07-03T11:45:00Z",
+      "tempsExecution": 0.198,
+      "statut": "reussi"
+    },
+    {
+      "id": 6,
+      "cle_id": 3,
+      "api_id": 3,
+      "dateAppel": "2026-07-03T16:10:44Z",
+      "tempsExecution": 0.221,
+      "statut": "reussi"
+    },
+    {
+      "id": 7,
+      "cle_id": 1,
+      "api_id": 1,
+      "dateAppel": "2026-07-04T07:58:19Z",
+      "tempsExecution": 0.375,
+      "statut": "reussi"
+    }
+  ],
+
+  "facturation": [
+    {
+      "id": 1,
+      "utilisateur_id": 2,
+      "dateDebut": "2026-07-01T00:00:00Z",
+      "dateFin": "2026-07-31T23:59:59Z",
+      "nombreRequetes": 45,
+      "montantTotal": 2.25,
+      "statut": "en_attente"
+    },
+    {
+      "id": 2,
+      "utilisateur_id": 3,
+      "dateDebut": "2026-07-01T00:00:00Z",
+      "dateFin": "2026-07-31T23:59:59Z",
+      "nombreRequetes": 12,
+      "montantTotal": 0.36,
+      "statut": "en_attente"
+    }
+  ],
+
+  "scenarios_test": [
+    {
+      "nom": "Connexion admin réussie",
+      "email": "amadou.diop@test.com",
+      "motDePasse": "Test1234!",
+      "resultatAttendu": "Redirection vers dashboard admin"
+    },
+    {
+      "nom": "Connexion utilisateur réussie",
+      "email": "fatou.fall@test.com",
+      "motDePasse": "Test1234!",
+      "resultatAttendu": "Redirection vers dashboard utilisateur"
+    },
+    {
+      "nom": "Connexion avec mauvais mot de passe",
+      "email": "fatou.fall@test.com",
+      "motDePasse": "MauvaisPass",
+      "resultatAttendu": "Message d'erreur : identifiants incorrects"
+    },
+    {
+      "nom": "Connexion compte non vérifié",
+      "email": "aissatou.sow@test.com",
+      "motDePasse": "Test1234!",
+      "resultatAttendu": "Message d'erreur : compte non vérifié"
+    },
+    {
+      "nom": "Accès dashboard sans token",
+      "token": null,
+      "resultatAttendu": "Redirection vers la page de login"
+    },
+    {
+      "nom": "Appel API avec clé révoquée",
+      "cle_id": 2,
+      "resultatAttendu": "Erreur 403 : clé révoquée"
+    },
+    {
+      "nom": "Appel API avec quota atteint",
+      "cle_id": 2,
+      "nombreAppelsUtilises": 100,
+      "quotaMax": 100,
+      "resultatAttendu": "Erreur 429 : quota dépassé"
+    }
+  ]
+}
