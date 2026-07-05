@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Admin – APIKëy</title>
+  <link rel="stylesheet" href="assets/style.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+</head>
+<body>
+
+<!-- ══════════════════ TOAST CONTAINER ══════════════════ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ══════════════════ MODAL OVERLAY ══════════════════ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<div class="layout">
+
+  <!-- ══════════════════ SIDEBAR ══════════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">API<span>Key</span></div>
+      <div class="logo-sub">Gateway IA Multilingue</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Principal</div>
+      <a href="#" class="nav-item active" data-section="overview">
+        <i class="ti ti-layout-dashboard"></i> Vue d'ensemble
+      </a>
+      <a href="#" class="nav-item" data-section="users">
+        <i class="ti ti-users"></i> Utilisateurs
+      </a>
+      <a href="#" class="nav-item" data-section="keys">
+        <i class="ti ti-key"></i> Clés API
+      </a>
+
+      <div class="nav-section-label">Gestion</div>
+      <a href="#" class="nav-item" data-section="logs">
+        <i class="ti ti-activity"></i> Logs
+      </a>
+      <a href="#" class="nav-item" data-section="billing">
+        <i class="ti ti-receipt"></i> Facturation
+      </a>
+      <a href="#" class="nav-item" data-section="requests">
+        <i class="ti ti-inbox"></i> Demandes
+        <span class="nav-badge" id="badgeDemandes">0</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="avatar" id="adminAvatar">A</div>
+        <div>
+          <div class="user-name" id="adminName">Admin</div>
+          <div class="user-role">Administrateur</div>
+        </div>
+      </div>
+      <button class="btn btn-outline" style="width:100%;margin-top:10px;justify-content:center;" onclick="logout()">
+        <i class="ti ti-logout"></i> Déconnexion
+      </button>
+    </div>
+  </aside>
+
+  <!-- ══════════════════ MAIN ══════════════════ -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1 id="pageTitle">Vue d'ensemble</h1>
+        <p id="pageSubtitle">Bienvenue sur le panneau d'administration</p>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-icon" title="Notifications"><i class="ti ti-bell"></i></button>
+        <button class="btn-icon" title="Paramètres"><i class="ti ti-settings"></i></button>
+      </div>
+    </header>
+
+    <!-- CONTENU PRINCIPAL -->
+    <div class="page-content" id="pageContent">
+      <!-- Injecté par JS -->
+    </div>
+
+  </div>
+</div>
+
+<script src="assets/js/main.js"></script>
+<script>
+// ══════════════════════════════════════════════
+//  DONNÉES DE TEST (depuis test-data.json simulé)
+// ══════════════════════════════════════════════
+const DATA = {
+  utilisateurs: [
+    { id:1, nom:"Diop", prenom:"Amadou", email:"amadou.diop@test.com", role:"admin", estVerifie:true, dateInscription:"2026-07-01" },
+    { id:2, nom:"Fall", prenom:"Fatou", email:"fatou.fall@test.com", role:"developpeur", estVerifie:true, dateInscription:"2026-07-02" },
+    { id:3, nom:"Ndiaye", prenom:"Moussa", email:"moussa.ndiaye@test.com", role:"public", estVerifie:true, dateInscription:"2026-07-03" },
+    { id:4, nom:"Sow", prenom:"Aissatou", email:"aissatou.sow@test.com", role:"developpeur", estVerifie:false, dateInscription:"2026-07-04" }
+  ],
+  cles_api: [
+    { id:1, utilisateur_id:2, valeurCle:"sk_test_fatou_tts_aabbcc112233", quotaMax:200, nombreAppelsUtilises:45, statut:"active", service:"TTS" },
+    { id:2, utilisateur_id:2, valeurCle:"sk_test_fatou_asr_ddeeff445566", quotaMax:100, nombreAppelsUtilises:100, statut:"revoquee", service:"ASR" },
+    { id:3, utilisateur_id:3, valeurCle:"sk_test_moussa_trad_778899aabbcc", quotaMax:150, nombreAppelsUtilises:12, statut:"active", service:"Traduction" },
+    { id:4, utilisateur_id:4, valeurCle:"sk_test_aissatou_tts_xxyyzz998877", quotaMax:200, nombreAppelsUtilises:0, statut:"active", service:"TTS" }
+  ],
+  logs: [
+    { id:1, cle_id:1, service:"TTS", dateAppel:"2026-07-04 08:14", tempsExecution:0.342, statut:"reussi" },
+    { id:2, cle_id:1, service:"TTS", dateAppel:"2026-07-04 10:30", tempsExecution:0.289, statut:"reussi" },
+    { id:3, cle_id:1, service:"TTS", dateAppel:"2026-07-03 09:05", tempsExecution:1.204, statut:"echoue" },
+    { id:4, cle_id:2, service:"ASR", dateAppel:"2026-07-03 14:22", tempsExecution:0.511, statut:"reussi" },
+    { id:5, cle_id:3, service:"Traduction", dateAppel:"2026-07-02 11:45", tempsExecution:0.198, statut:"reussi" },
+    { id:6, cle_id:3, service:"Traduction", dateAppel:"2026-07-02 16:10", tempsExecution:0.221, statut:"reussi" },
+    { id:7, cle_id:1, service:"TTS", dateAppel:"2026-07-01 07:58", tempsExecution:0.375, statut:"reussi" }
+  ],
+  facturation: [
+    { id:1, utilisateur_id:2, dateDebut:"2026-07-01", dateFin:"2026-07-31", nombreRequetes:45, montantTotal:2.25, statut:"en_attente" },
+    { id:2, utilisateur_id:3, dateDebut:"2026-07-01", dateFin:"2026-07-31", nombreRequetes:12, montantTotal:0.36, statut:"en_attente" }
+  ],
+  demandes: [
+    { id:1, utilisateur_id:3, service:"ASR", justification:"J'ai besoin de transcrire des audios pour mon projet.", statut:"en_attente", dateDemande:"2026-07-04" },
+    { id:2, utilisateur_id:4, service:"Traduction", justification:"Application multilingue en cours de développement.", statut:"en_attente", dateDemande:"2026-07-04" }
+  ]
+};
+
+// ══════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════
+function getUserById(id) { return DATA.utilisateurs.find(u => u.id === id); }
+function getUserName(id) { const u = getUserById(id); return u ? u.prenom + ' ' + u.nom : '–'; }
+
+function badgeRole(role) {
+  const map = { admin:'badge-admin', developpeur:'badge-dev', public:'badge-public' };
+  return `<span class="badge ${map[role]||''}">${role}</span>`;
+}
+
+function badgeStatut(statut) {
+  const map = { active:'badge-active', revoquee:'badge-revoked', en_attente:'badge-pending', payee:'badge-paid', reussi:'badge-active', echoue:'badge-revoked' };
+  const labels = { active:'Active', revoquee:'Révoquée', en_attente:'En attente', payee:'Payée', reussi:'Réussi', echoue:'Échoué' };
+  return `<span class="badge ${map[statut]||''}">${labels[statut]||statut}</span>`;
+}
+
+function masquerCle(cle) { return cle.substring(0, 10) + '••••••••••••••••••'; }
+
+function progressBar(used, max) {
+  const pct = Math.min(Math.round((used/max)*100), 100);
+  const cls = pct >= 90 ? 'danger' : pct >= 70 ? 'warning' : '';
+  return `
+    <div style="font-size:11px;color:var(--text-muted)">${used} / ${max} appels (${pct}%)</div>
+    <div class="progress-bar"><div class="progress-fill ${cls}" style="width:${pct}%"></div></div>`;
+}
+
+// ══════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════
+function showToast(msg, type='success') {
+  const icons = { success:'ti-circle-check', danger:'ti-alert-circle', warning:'ti-alert-triangle' };
+  const tc = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<i class="ti ${icons[type]||'ti-info-circle'}" style="font-size:18px"></i><span>${msg}</span>`;
+  tc.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ══════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════
+function openModal(html) {
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ══════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════
+const sections = {
+  overview: { title:'Vue d\'ensemble', subtitle:'Bienvenue sur le panneau d\'administration' },
+  users:    { title:'Utilisateurs', subtitle:'Gérer tous les comptes utilisateurs' },
+  keys:     { title:'Clés API', subtitle:'Gérer les clés API de la plateforme' },
+  logs:     { title:'Logs de consommation', subtitle:'Historique de tous les appels' },
+  billing:  { title:'Facturation', subtitle:'Gérer et générer les factures' },
+  requests: { title:'Demandes d\'API', subtitle:'Traiter les demandes de nouveaux services' }
+};
+
+function navigate(section) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector(`[data-section="${section}"]`).classList.add('active');
+  document.getElementById('pageTitle').textContent = sections[section].title;
+  document.getElementById('pageSubtitle').textContent = sections[section].subtitle;
+  const renders = { overview:renderOverview, users:renderUsers, keys:renderKeys, logs:renderLogs, billing:renderBilling, requests:renderRequests };
+  document.getElementById('pageContent').innerHTML = '';
+  (renders[section] || renderOverview)();
+}
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', e => { e.preventDefault(); navigate(item.dataset.section); });
+});
+
+// ══════════════════════════════════════════════
+//  SECTION : VUE D'ENSEMBLE
+// ══════════════════════════════════════════════
+function renderOverview() {
+  const totalUsers = DATA.utilisateurs.length;
+  const totalKeys  = DATA.cles_api.length;
+  const activeKeys = DATA.cles_api.filter(k => k.statut === 'active').length;
+  const totalLogs  = DATA.logs.length;
+  const totalCA    = DATA.facturation.reduce((s,f) => s + f.montantTotal, 0).toFixed(2);
+  const pending    = DATA.demandes.filter(d => d.statut === 'en_attente').length;
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon purple"><i class="ti ti-users"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">${totalUsers}</div>
+          <div class="stat-label">Utilisateurs inscrits</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><i class="ti ti-key"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">${activeKeys}<span style="font-size:14px;color:var(--text-muted)">/${totalKeys}</span></div>
+          <div class="stat-label">Clés API actives</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber"><i class="ti ti-activity"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">${totalLogs}</div>
+          <div class="stat-label">Appels enregistrés</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red"><i class="ti ti-receipt"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">${totalCA}<span style="font-size:13px;color:var(--text-muted)"> €</span></div>
+          <div class="stat-label">Chiffre d'affaires</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+      <!-- Derniers utilisateurs -->
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Derniers utilisateurs</div></div>
+          <button class="btn btn-outline btn-sm" onclick="navigate('users')">Voir tout</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nom</th><th>Rôle</th><th>Statut</th></tr></thead>
+            <tbody>
+              ${DATA.utilisateurs.slice(-4).reverse().map(u => `
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <div class="avatar" style="width:30px;height:30px;font-size:12px">${u.prenom[0]}</div>
+                      <div>
+                        <div style="font-weight:600">${u.prenom} ${u.nom}</div>
+                        <div style="font-size:11px;color:var(--text-muted)">${u.email}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>${badgeRole(u.role)}</td>
+                  <td>${u.estVerifie ? '<span class="badge badge-active">Vérifié</span>' : '<span class="badge badge-pending">Non vérifié</span>'}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Demandes en attente -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Demandes en attente</div>
+            <div class="card-subtitle">${pending} demande(s) à traiter</div>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="navigate('requests')">Voir tout</button>
+        </div>
+        ${DATA.demandes.filter(d=>d.statut==='en_attente').map(d => `
+          <div style="background:var(--bg-page);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <div style="font-weight:600">${getUserName(d.utilisateur_id)}</div>
+              <span class="badge badge-pending">${d.service}</span>
+            </div>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">${d.justification}</p>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-success btn-sm" onclick="traiterDemande(${d.id},'approuver')"><i class="ti ti-check"></i> Approuver</button>
+              <button class="btn btn-danger btn-sm"  onclick="traiterDemande(${d.id},'rejeter')"><i class="ti ti-x"></i> Rejeter</button>
+            </div>
+          </div>`).join('') || '<div class="empty-state"><i class="ti ti-inbox"></i><p>Aucune demande en attente</p></div>'}
+      </div>
+
+    </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  SECTION : UTILISATEURS
+// ══════════════════════════════════════════════
+function renderUsers() {
+  document.getElementById('pageContent').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Liste des utilisateurs (${DATA.utilisateurs.length})</div>
+        <div class="search-bar">
+          <i class="ti ti-search"></i>
+          <input type="text" placeholder="Rechercher..." id="searchUser" oninput="filterUsers(this.value)"/>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="usersTable">
+          <thead>
+            <tr>
+              <th>Utilisateur</th><th>Rôle</th><th>Clés API</th><th>Vérification</th><th>Inscription</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersBody">
+            ${renderUsersRows(DATA.utilisateurs)}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function renderUsersRows(users) {
+  return users.map(u => {
+    const userKeys = DATA.cles_api.filter(k => k.utilisateur_id === u.id);
+    const activeK  = userKeys.filter(k => k.statut === 'active').length;
+    return `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="avatar">${u.prenom[0]}</div>
+            <div>
+              <div style="font-weight:600">${u.prenom} ${u.nom}</div>
+              <div style="font-size:11px;color:var(--text-muted)">${u.email}</div>
+            </div>
+          </div>
+        </td>
+        <td>${badgeRole(u.role)}</td>
+        <td><span style="font-weight:600">${activeK}</span><span style="color:var(--text-muted)">/${userKeys.length}</span> actives</td>
+        <td>${u.estVerifie ? '<span class="badge badge-active">Vérifié</span>' : '<span class="badge badge-pending">En attente</span>'}</td>
+        <td style="color:var(--text-muted)">${u.dateInscription}</td>
+        <td>
+          <button class="btn btn-outline btn-sm" onclick="voirDetailsUser(${u.id})"><i class="ti ti-eye"></i> Détails</button>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function filterUsers(q) {
+  const filtered = DATA.utilisateurs.filter(u =>
+    (u.nom+u.prenom+u.email).toLowerCase().includes(q.toLowerCase())
+  );
+  document.getElementById('usersBody').innerHTML = renderUsersRows(filtered);
+}
+
+function voirDetailsUser(id) {
+  const u    = getUserById(id);
+  const keys = DATA.cles_api.filter(k => k.utilisateur_id === id);
+  const fact = DATA.facturation.find(f => f.utilisateur_id === id);
+  openModal(`
+    <div class="modal-header">
+      <div class="modal-title">Détails – ${u.prenom} ${u.nom}</div>
+      <button class="btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+      <div class="avatar" style="width:52px;height:52px;font-size:20px">${u.prenom[0]}</div>
+      <div>
+        <div style="font-weight:600;font-size:15px">${u.prenom} ${u.nom}</div>
+        <div style="color:var(--text-muted);font-size:12px">${u.email}</div>
+        <div style="margin-top:4px">${badgeRole(u.role)}</div>
+      </div>
+    </div>
+    <div style="background:var(--bg-page);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Clés API</div>
+      ${keys.length ? keys.map(k => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-size:12px;font-family:monospace;color:var(--accent)">${masquerCle(k.valeurCle)}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${k.service} · ${k.nombreAppelsUtilises}/${k.quotaMax} appels</div>
+            ${progressBar(k.nombreAppelsUtilises, k.quotaMax)}
+          </div>
+          <div style="margin-left:12px">${badgeStatut(k.statut)}</div>
+        </div>`).join('') : '<div style="color:var(--text-muted);font-size:12px">Aucune clé API</div>'}
+    </div>
+    ${fact ? `
+    <div style="background:var(--bg-page);border-radius:var(--radius-sm);padding:16px">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Facturation du mois</div>
+      <div style="display:flex;justify-content:space-between">
+        <span style="color:var(--text-muted)">${fact.nombreRequetes} requêtes</span>
+        <span style="font-weight:700;font-size:16px">${fact.montantTotal} €</span>
+      </div>
+      <div style="margin-top:8px">${badgeStatut(fact.statut)}</div>
+    </div>` : ''}
+  `);
+}
+
+// ══════════════════════════════════════════════
+//  SECTION : CLÉS API
+// ══════════════════════════════════════════════
+function renderKeys() {
+  document.getElementById('pageContent').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Toutes les clés API (${DATA.cles_api.length})</div>
+        <div style="display:flex;gap:10px">
+          <select class="form-control" style="width:auto" onchange="filterKeys(this.value)">
+            <option value="">Tous les statuts</option>
+            <option value="active">Active</option>
+            <option value="revoquee">Révoquée</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Clé</th><th>Utilisateur</th><th>Service</th><th>Utilisation</th><th>Statut</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="keysBody">
+            ${renderKeysRows(DATA.cles_api)}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function renderKeysRows(keys) {
+  return keys.map(k => `
+    <tr>
+      <td style="font-family:monospace;font-size:12px;color:var(--accent)">${masquerCle(k.valeurCle)}</td>
+      <td>${getUserName(k.utilisateur_id)}</td>
+      <td><span class="badge badge-dev">${k.service}</span></td>
+      <td style="min-width:160px">${progressBar(k.nombreAppelsUtilises, k.quotaMax)}</td>
+      <td>${badgeStatut(k.statut)}</td>
+      <td>
+        ${k.statut === 'active'
+          ? `<button class="btn btn-danger btn-sm" onclick="revoquerCle(${k.id})"><i class="ti ti-ban"></i> Révoquer</button>`
+          : `<span style="color:var(--text-muted);font-size:12px">–</span>`}
+      </td>
+    </tr>`).join('');
+}
+
+function filterKeys(statut) {
+  const filtered = statut ? DATA.cles_api.filter(k => k.statut === statut) : DATA.cles_api;
+  document.getElementById('keysBody').innerHTML = renderKeysRows(filtered);
+}
+
+function revoquerCle(id) {
+  openModal(`
+    <div class="modal-header">
+      <div class="modal-title">Révoquer la clé</div>
+      <button class="btn-icon" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <p style="color:var(--text-muted);margin-bottom:20px">Êtes-vous sûr de vouloir révoquer cette clé ? L'utilisateur ne pourra plus l'utiliser.</p>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-danger" onclick="confirmerRevocation(${id})"><i class="ti ti-ban"></i> Révoquer</button>
+    </div>`);
+}
+
+function confirmerRevocation(id) {
+  const k = DATA.cles_api.find(k => k.id === id);
+  if (k) { k.statut = 'revoquee'; }
+  closeModal();
+  showToast('Clé révoquée avec succès', 'warning');
+  renderKeys();
+}
+
+// ══════════════════════════════════════════════
+//  SECTION : LOGS
+// ══════════════════════════════════════════════
+function renderLogs() {
+  document.getElementById('pageContent').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Logs de consommation (${DATA.logs.length})</div>
+        <select class="form-control" style="width:auto" onchange="filterLogs(this.value)">
+          <option value="">Tous</option>
+          <option value="reussi">Réussi</option>
+          <option value="echoue">Échoué</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Utilisateur</th><th>Service</th><th>Date</th><th>Durée (s)</th><th>Statut</th></tr>
+          </thead>
+          <tbody id="logsBody">${renderLogsRows(DATA.logs)}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function renderLogsRows(logs) {
+  return logs.map(l => {
+    const cle  = DATA.cles_api.find(k => k.id === l.cle_id);
+    const user = cle ? getUserName(cle.utilisateur_id) : '–';
+    return `
+      <tr>
+        <td style="color:var(--text-muted)">#${l.id}</td>
+        <td>${user}</td>
+        <td><span class="badge badge-dev">${l.service}</span></td>
+        <td style="color:var(--text-muted)">${l.dateAppel}</td>
+        <td>${l.tempsExecution}s</td>
+        <td>${badgeStatut(l.statut)}</td>
+      </tr>`;
+  }).join('');
+}
+
+function filterLogs(statut) {
+  const filtered = statut ? DATA.logs.filter(l => l.statut === statut) : DATA.logs;
+  document.getElementById('logsBody').innerHTML = renderLogsRows(filtered);
+}
+
+// ══════════════════════════════════════════════
+//  SECTION : FACTURATION
+// ══════════════════════════════════════════════
+function renderBilling() {
+  const total = DATA.facturation.reduce((s,f) => s + f.montantTotal, 0).toFixed(2);
+  document.getElementById('pageContent').innerHTML = `
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px">
+      <div class="stat-card">
+        <div class="stat-icon amber"><i class="ti ti-receipt"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">${total} €</div>
+          <div class="stat-label">Total à facturer</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple"><i class="ti ti-clock"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">${DATA.facturation.filter(f=>f.statut==='en_attente').length}</div>
+          <div class="stat-label">Factures en attente</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><i class="ti ti-check"></i></div>
+        <div class="stat-info">
+          <div class="stat-value">${DATA.facturation.filter(f=>f.statut==='payee').length}</div>
+          <div class="stat-label">Factures payées</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Factures du mois</div>
+        <button class="btn btn-primary btn-sm" onclick="genererFactures()"><i class="ti ti-plus"></i> Générer factures</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Utilisateur</th><th>Période</th><th>Requêtes</th><th>Montant</th><th>Statut</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            ${DATA.facturation.map(f => `
+              <tr>
+                <td>
+                  <div style="font-weight:600">${getUserName(f.utilisateur_id)}</div>
+                  <div style="font-size:11px;color:var(--text-muted)">${getUserById(f.utilisateur_id)?.email||''}</div>
+                </td>
+                <td style="color:var(--text-muted)">${f.dateDebut} → ${f.dateFin}</td>
+                <td style="font-weight:600">${f.nombreRequetes}</td>
+                <td style="font-weight:700;color:var(--accent)">${f.montantTotal} €</td>
+                <td>${badgeStatut(f.statut)}</td>
+                <td>
+                  ${f.statut === 'en_attente'
+                    ? `<button class="btn btn-success btn-sm" onclick="marquerPayee(${f.id})"><i class="ti ti-check"></i> Marquer payée</button>`
+                    : `<span style="color:var(--text-muted)">–</span>`}
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function marquerPayee(id) {
+  const f = DATA.facturation.find(f => f.id === id);
+  if (f) f.statut = 'payee';
+  showToast('Facture marquée comme payée', 'success');
+  renderBilling();
+}
+
+function genererFactures() {
+  showToast('Factures générées pour tous les utilisateurs actifs', 'success');
+}
+
+// ══════════════════════════════════════════════
+//  SECTION : DEMANDES
+// ══════════════════════════════════════════════
+function renderRequests() {
+  const pending = DATA.demandes.filter(d => d.statut === 'en_attente').length;
+  document.getElementById('pageContent').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Demandes de services API</div>
+          <div class="card-subtitle">${pending} demande(s) en attente de traitement</div>
+        </div>
+      </div>
+      <div id="demandesList">
+        ${renderDemandesCards()}
+      </div>
+    </div>`;
+}
+
+function renderDemandesCards() {
+  if (!DATA.demandes.length) return '<div class="empty-state"><i class="ti ti-inbox"></i><p>Aucune demande</p></div>';
+  return DATA.demandes.map(d => `
+    <div style="background:var(--bg-page);border-radius:var(--radius-sm);padding:18px;margin-bottom:14px;border:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="avatar">${getUserName(d.utilisateur_id)[0]}</div>
+          <div>
+            <div style="font-weight:600">${getUserName(d.utilisateur_id)}</div>
+            <div style="font-size:11px;color:var(--text-muted)">${d.dateDemande}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="badge badge-dev">${d.service}</span>
+          ${badgeStatut(d.statut)}
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;padding:10px;background:var(--bg-card);border-radius:var(--radius-sm)">${d.justification}</p>
+      ${d.statut === 'en_attente' ? `
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-success btn-sm" onclick="traiterDemande(${d.id},'approuver')"><i class="ti ti-check"></i> Approuver</button>
+          <button class="btn btn-danger btn-sm"  onclick="traiterDemande(${d.id},'rejeter')"><i class="ti ti-x"></i> Rejeter</button>
+        </div>` : `<span style="color:var(--text-muted);font-size:12px">Demande déjà traitée</span>`}
+    </div>`).join('');
+}
+
+function traiterDemande(id, action) {
+  const d = DATA.demandes.find(d => d.id === id);
+  if (!d) return;
+  if (action === 'approuver') {
+    d.statut = 'approuvee';
+    const newKey = {
+      id: DATA.cles_api.length + 1,
+      utilisateur_id: d.utilisateur_id,
+      valeurCle: 'sk_new_' + Math.random().toString(36).substring(2, 18),
+      quotaMax: 200,
+      nombreAppelsUtilises: 0,
+      statut: 'active',
+      service: d.service
+    };
+    DATA.cles_api.push(newKey);
+    showToast('Demande approuvée – clé générée automatiquement', 'success');
+  } else {
+    d.statut = 'rejetee';
+    showToast('Demande rejetée', 'warning');
+  }
+  document.getElementById('badgeDemandes').textContent = DATA.demandes.filter(d=>d.statut==='en_attente').length;
+  if (document.getElementById('demandesList')) {
+    document.getElementById('demandesList').innerHTML = renderDemandesCards();
+  } else {
+    renderOverview();
+  }
+  closeModal();
+}
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+function logout() {
+  if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
+    showToast('Déconnexion...', 'warning');
+    setTimeout(() => window.location.href = 'login.html', 1500);
+  }
+}
+
+// Initialisation
+document.getElementById('badgeDemandes').textContent = DATA.demandes.filter(d=>d.statut==='en_attente').length;
+renderOverview();
+</script>
+</body>
+</html>
