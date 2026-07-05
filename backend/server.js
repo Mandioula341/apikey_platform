@@ -24,3 +24,5 @@ app.listen(PORT, () => {
 });
 const cleApiRoutes = require('./routes/cleApiRoutes');
 app.use('/api/cles', cleApiRoutes);
+const adminRoutes = require('./routes/adminRoutes');
+app.use('/api/admin', adminRoutes);
