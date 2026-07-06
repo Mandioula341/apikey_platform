@@ -1,0 +1,122 @@
+.keycard {
+  display: grid;
+  grid-template-columns: 1fr auto 200px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+}
+
+.keycard-revoked {
+  opacity: 0.6;
+}
+
+.keycard-main {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.keycard-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.keycard-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.keycard-value {
+  font-size: 15px;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+  word-break: break-all;
+}
+
+.keycard-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.keycard-actions .btn {
+  padding: 7px 14px;
+  font-size: 12px;
+}
+
+/* Ligne perforée façon souche de billet */
+.keycard-perforation {
+  position: relative;
+  width: 0;
+  border-left: 2px dashed var(--border);
+}
+
+.keycard-perforation::before,
+.keycard-perforation::after {
+  content: "";
+  position: absolute;
+  left: -8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg);
+}
+
+.keycard-perforation::before { top: -8px; }
+.keycard-perforation::after { bottom: -8px; }
+
+.keycard-stub {
+  background: var(--surface-2);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+}
+
+.keycard-stub-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stub-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stub-value {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.stub-bar {
+  height: 5px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.stub-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 720px) {
+  .keycard {
+    grid-template-columns: 1fr;
+  }
+  .keycard-perforation {
+    display: none;
+  }
+}
